@@ -1,0 +1,7 @@
+.git/
+logs/
+.settings/
+bin/
+maps/
+.classpath
+.project

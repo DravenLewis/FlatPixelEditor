@@ -1,0 +1,69 @@
+$APPLICATION_TITLE=Flat Pixel Editor (Español);
+$APPLICATION_VERSION=Version %s;
+##
+$MENU_FILE=Carpeta;
+$MENU_FILE_NEW=Nuevo Mapa;
+$MENU_FILE_SETTINGS=Configuraciones;
+$MENU_EDIT=editar;
+$MENU_EDIT_CLEAR=Mapa claro;
+$MENU_EDIT_CLEAR_CONFIRM=¿Estás seguro de que quieres borrar todo el mapa?;
+$MENU_EDIT_DRAW_MODE_ITEM=Modo de dibujar;
+$MENU_EDIT_DRAW_MODE_POINT=Punto;
+$MENU_EDIT_DRAW_MODE_FILL=Inundar;
+$MENU_VIEW=Ver;
+$MENU_VIEW_DRAW_GRID=Dibujar líneas de cuadrícula;
+$MENU_PROJECT=Proyecto;
+$MENU_DEBUG=Depurar;
+$MENU_DEBUG_SPAWN_DEBUGGER=Depurador abierto;
+##
+$DIALOG_CONFIRM_MULTI_LAYER_DELETE=¿Estás seguro de que quieres eliminar %s capas?;
+##
+$EDITOR_TAB_TILE=Losas;
+$EDITOR_TAB_LAYER=Capas;
+$EDITOR_CLOSE_NOTIFICATION=Su proyecto contiene elementos no guardados, ¿está seguro de que desea cerrar?;
+$EDITOR_CLOSE_NOTIFICATION_TITLE=¿Cerca Flat Pixel Editor?;
+##
+$DIALOG_CREATE_HEADER=Crear nuevo mapa;
+$DIALOG_CREATE_LABEL_MAP_SIZE=Tamaño de mapa;
+$DIALOG_CREATE_LABEL_TILE_SIZE=Tamaño del azulejo;
+$DIALOG_CREATE_LABEL_TILESET=Mosaico;
+$DIALOG_CREATE_LABEL_TILESETNAME=No hay mosaico seleccionado;
+$DIALOG_CREATE_LABEL_PRESETS=Preajustes;
+$DIALOG_CREATE_BUTTON_OPEN=Abierto;
+$DIALOG_CREATE_BUTTON_CREATE=Crear;
+$DIALOG_CREATE_ERROR_MAPSIZEX=Tamaño de mapa X no válido;
+$DIALOG_CREATE_ERROR_MAPSIZEY=Tamaño de mapa Y no válido;
+$DIALOG_CREATE_ERROR_TILESIZE=Tamaño de mosaico no válido;
+$DIALOG_CREATE_ERROR_TILESET=Se requiere una imagen de conjunto de mosaicos;
+$DIALOG_CREATE_ERROR_WARNING=Asegúrese de completar los campos requeridos;
+##
+$SETTINGS_COLOR_PICKER_TEXT=Elegir;
+$SETTINGS_COLOR_PICKER_TITLE=Selecciona un valor;
+##
+$DIALOG_DEBUGGER_TAB_CONSOLE=Consola;
+$DIALOG_DUBUGGER_TAB_LOG=Visor de registro;
+$DIALOG_DEBUGGER_BUTTON_CONSOLE_SEND=Mandar;
+$DIALOG_DEBUGGER_BUTTON_LOG_DELETE=Eliminar;
+$DIALOG_DEBUGGER_LABEL_LOGFILE=Archivo de registro:;
+$DIALOG_DEBUGGER_LOG_DELETE_CONFIRM=¿Seguro que quieres eliminar '%s'?;
+$DIALOG_DEBUGGER_LOG_DELETE_ERROR=No se puede eliminar el archivo: %s;
+$DIALOG_DEBUGGER_TITLE=Depurador;
+$DIALOG_DEBUGGER_LOG_FILENOSELECT=Ningún archivo de registro seleccionado;
+##
+$DIALOG_LAYER_RENAME=Cambiar nombre de capa;
+$DIALOG_LAYER_REANME_CONFIRM=Cambiar nombre de capa: '% s';
+##
+$DIALOG_SAVE_UNSAVED_MESSAGE=La configuración ha cambiado, ¿estás seguro de que deseas cancelar?;
+$DIALOG_SAVE_UNSAVED_TITLE=Cambios no guardados;
+##
+$GENERIC_DELETE_FAIL=Eliminar fallido;
+$GENERIC_DELETE_SUCCESS=Archivo eliminado correctamente;
+$GENERIC_SUCCESS=Éxito;
+$GENERIC_DELETE_FILE=Confirmar eliminación de archivo;
+$GENERIC_ERROR=Ocurrió un error;
+$GENERIC_CONFIRM=Si;
+$GENERIC_DISMISS=Okay;
+$GENERIC_DENY=No;
+$GENERIC_CANCEL=Cancelar;
+$GENERIC_SAVE=Salvar;
+

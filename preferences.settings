@@ -1,0 +1,16 @@
+
+## This file is machine generated, do not edit. 
+## Generated on Tue Jul 14 19:00:48 CDT 2020
+
+Hex:$CONSOLE_COLOR_FOREGROUND=ffffff;
+Boolean:$CONSOLE_OPEN_ON_STARTUP=true;
+Directory:$USER_PRESET_PATH=./prefs/userPresets;
+Boolean:$NOTIFY_ON_EXIT=true;
+Option:$LANGUAGE_SETTING=1,$LANGUAGE_LIST;
+Directory:$LANGUAGE_PATH=./prefs/lang;
+Boolean:$USE_NATIVE_LF=true;
+Directory:$OPTION_PATH=./prefs;
+Array:$LANGUAGE_LIST=en_gb,en_us,es;
+Hex:$GRID_COLOR=888888;
+Hex:$CONSOLE_COLOR_BACKGROUND=3e3e3e;
+Boolean:$SAVE_CONSOLE_TO_FILE=true;
