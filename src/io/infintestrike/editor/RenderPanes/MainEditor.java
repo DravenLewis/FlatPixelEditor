@@ -13,6 +13,7 @@ import io.infintestrike.editor.MapEditor;
 import io.infintestrike.editor.RenderPane;
 import io.infintestrike.editor.RenderPane.InputManager;
 import io.infintestrike.editor.RenderPane.RenderCall;
+import io.infintestrike.editor.core.ResourceManager;
 import io.infintestrike.editor.Settings;
 import io.infintestrike.editor.cursor.Cursors;
 import io.infintestrike.editor.tilemap.Layer;
@@ -57,22 +58,21 @@ public class MainEditor extends RenderCall {
 			this.getParent().removeDrawable(m);
 		}
 
-		if(replace != null) {
+		if (replace != null) {
 			this.m = replace;
 			this.ts = m.getTileSize();
 			Settings.MapTileSize = m.getTileSize();
 			Settings.MapCellWidth = m.getHorizontalCellCount();
 			Settings.MapCellHeight = m.getVerticalCellCount();
 			Settings.CurrentTileSet = m.getTileSetImage();
-			
-			MapEditor.applicationWindow.tilesetImage = Settings.CurrentTileSet;
-		}else {
-			this.m = new Map(parent.tilesetImage, Settings.MapCellWidth, Settings.MapCellHeight, this.ts);
-		}
-		
-		this.getParent().addDrawable(m);
 
-		this.baseLayer = new Layer(this.getMap());
+			MapEditor.applicationWindow.tilesetImage = Settings.CurrentTileSet;
+		} else {
+			this.m = new Map(parent.tilesetImage, Settings.MapCellWidth, Settings.MapCellHeight, this.ts);
+			this.baseLayer = new Layer(this.getMap());
+		}
+
+		this.getParent().addDrawable(m);
 	}
 
 	@Override
@@ -96,8 +96,9 @@ public class MainEditor extends RenderCall {
 				} else if (Settings.editorDrawMode == Settings.FILL_MODE_FLOOD) {
 					this.getMap().floodFillTile(pos.x, pos.y, Settings.CurrentlySelectedTile);
 				}
+				Settings.isSaved = false;
 			} else {
-				//Console.Log("[MainEditor] No Active Layer.");
+				// Console.Log("[MainEditor] No Active Layer.");
 			}
 		}
 
@@ -106,8 +107,9 @@ public class MainEditor extends RenderCall {
 			Layer activeLayer = this.getMap().getActiveLayer();
 			if (activeLayer != null) {
 				this.getMap().getActiveLayer().setTile(pos.x, pos.y, Layer.TILE_ID_EMPTY);
+				Settings.isSaved = false;
 			} else {
-				Console.Log("[MainEditor] No Active Layer.");
+				// Console.Log("[MainEditor] No Active Layer.");
 			}
 		}
 
@@ -115,6 +117,19 @@ public class MainEditor extends RenderCall {
 
 		mouseLastX = c.getInputManager().MOUSE_X;
 		mouseLastY = c.getInputManager().MOUSE_Y;
+
+		if (ResourceManager.isDone()) {
+			try {
+				if (!Settings.lastSavedPath.equals("")) {
+					MapEditor.applicationWindow.frame.setTitle(Settings.getLanguage().getValue("$APPLICATION_TITLE"));
+				} else {
+					MapEditor.applicationWindow.frame
+							.setTitle(Settings.getLanguage().getValue("$APPLICATION_TITLE") + " *");
+				}
+			} catch (Exception e) {
+				Console.Error("Error While Loading Settings", e);
+			}
+		}
 	}
 
 	@Override
@@ -140,9 +155,9 @@ public class MainEditor extends RenderCall {
 		return this.m;
 	}
 
-	
 	public void setMap(Map m) {
 		this.UpdateTileMap(m);
+		Console.Log("Debug: Layer Ammount: " + m.getLayers().size());
 	}
 
 	@Override

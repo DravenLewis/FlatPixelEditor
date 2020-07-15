@@ -20,6 +20,12 @@ public class ResourceManager {
 	public static BufferedImage APPLICATION_ICONS = null;
 	public static BufferedImage DEBUGGER_ICON = null;
 	public static BufferedImage APPLICATION_ICON = null;
+	
+	private static boolean done = false;
+	
+	// Cannot Construct Singleton
+	private ResourceManager() {};
+	
 	public static void loadResources() throws Exception{
 		
 		
@@ -62,5 +68,10 @@ public class ResourceManager {
 		UIManager.put("OptionPane.noButtonText", Settings.getLanguage().getValue("$GENERIC_DENY"));
 		UIManager.put("OptionPane.okButtonText", Settings.getLanguage().getValue("$GENERIC_DISMISS"));
 
+		done = true;
+	}
+	
+	public static boolean isDone(){
+		return done;
 	}
 }

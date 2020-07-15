@@ -136,10 +136,11 @@ public class LayerController implements Runnable {
 
 	public void regenerateList() {
 		if (this.list != null && this.layerMap != null) {
-			Console.Log("Regen");
 			DefaultListModel<String> model = (DefaultListModel<String>) this.list.getModel();
 			model.removeAllElements();
+			Console.Log("[Regenerate List] Layers Loaded: " + this.layerMap.getLayers().size());
 			for (Layer l : this.layerMap.getLayers()) {
+				Console.Log("Setting Layer Name: " + l.getName());
 				if (l != null) {
 					model.addElement("     " + l.getName() + (!l.isDoRender() ? " - Hidden" : ""));
 				}
@@ -324,6 +325,15 @@ public class LayerController implements Runnable {
 						}
 					}
 				});
+				JMenuItem refresh = new JMenuItem(Settings.getLanguage().getValue("$DIALOG_LAYER_REFRESH"));
+				refresh.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						doRegen = true;
+					}
+				});
+				menu.add(refresh);
 				menu.add(rename);
 				menu.setLocation(evt.getPoint());
 				menu.show(list, evt.getPoint().x, evt.getPoint().y);

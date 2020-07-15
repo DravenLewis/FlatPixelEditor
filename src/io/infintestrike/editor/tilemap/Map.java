@@ -185,6 +185,18 @@ public class Map implements Drawable {
 		this.offset.y = y;
 	}
 
+	public BufferedImage renderMap() {
+		BufferedImage img = new BufferedImage(this.drawBuffer.getWidth(),this.drawBuffer.getHeight(),BufferedImage.TYPE_INT_ARGB);
+		Graphics2D imgGraphics = (Graphics2D) img.getGraphics();
+		if (this.tileMap != null) {
+			for (int i = 0; i < this.getLayers().size(); i++) {
+				this.getLayers().get(i).draw(imgGraphics);
+			}
+		}
+		imgGraphics.dispose();
+		return img;
+	}
+	
 	@Override
 	public void OnRender(Graphics g, RenderPane c) {
 		// TODO Auto-generated method stub
@@ -195,11 +207,15 @@ public class Map implements Drawable {
 		bufferedGraphics.setBackground(new Color(255, 255, 255, 0));
 		bufferedGraphics.clearRect(0, 0, this.getWidth() + 1, this.getHeight() + 1);
 
-		if (this.tileMap != null) {
+		/*if (this.tileMap != null) {
 			for (int i = 0; i < this.getLayers().size(); i++) {
 				this.getLayers().get(i).draw(bufferedGraphics);
 			}
-		}
+		}*/
+		
+		BufferedImage img = renderMap();
+		bufferedGraphics.drawImage(img, 0, 0, null);
+		
 
 		if (Settings.drawGridBox) {
 
@@ -256,6 +272,10 @@ public class Map implements Drawable {
 		Map m = null;
 		LoaderResult r = null;
 
+		Console.Log("=====================================================");
+		Console.Log("Map Import Started");
+		Console.Log("=====================================================");
+		
 		try {
 			r = Loader.readFile(location);
 		} catch (FileNotFoundException e) {
@@ -297,10 +317,13 @@ public class Map implements Drawable {
 			}
 			// create layer map
 			int layerCount = Loader.getValueInt(r.valueOf("$LAYER_COUNT", "-1"));
+			Console.Log("[Map::OpenMap] Layer Count: " + layerCount);
 			if (layerCount != -1) {
 				for (int i = 0; i < layerCount; i++) {
-					Layer l = new Layer(m, false);
-					l.setName(Loader.getValueString(r.valueOf("$LAYER_ID_" + (i) + "_NAME", "New Layer")));
+					String name = Loader.getValueString(r.valueOf("$LAYER_ID_" + (i) + "_NAME", "New Layer"));
+					Console.Log("[Map::OpenMap] Layer "+i+" Name: " + name);
+					Layer l = new Layer(m, true);
+					l.setName(name);
 					String[] layerValues = Loader.getValueArray(r.valueOf("$LAYER_ID_" + (i), "null"));
 					if (!layerValues[0].equals("null")) {
 						for (int j = 0; j < layerValues.length; j++) {
@@ -310,10 +333,16 @@ public class Map implements Drawable {
 						Console.Log("Cannot Read Layer Entry: $LAYER_ID_" + i);
 						return null;
 					}
-					m.addLayer(l);
+					
 				}
 			}
 
+			Console.Log("=====================================================");
+			Console.Log("Map Import Finished");
+			Console.Log("Tiles: " + m.getTileMap().getTiles().length);
+			Console.Log("Layers: " + m.getLayers().size());
+			Console.Log("=====================================================");
+			
 			Settings.CURRENT_TILESET_FILE = new File(tilesetFilePath); // only set if we get this far
 			return m;
 		} catch (Exception e) {
@@ -341,7 +370,7 @@ public class Map implements Drawable {
 				result.set("$TILE_CELLS_X", LoaderEntry.makeEntry(m.cellsH));
 				result.set("$TILE_CELLS_Y", LoaderEntry.makeEntry(m.cellsV));
 				result.set("$TILE_AMMOUNT", LoaderEntry.makeEntry(tiles.getTiles().length));
-				result.set("$TILE_SET", LoaderEntry.makeEntry("tileset.png"));
+				result.set("$TILE_SET", LoaderEntry.makeEntry(Settings.CURRENT_TILESET_FILE.getName()));
 				result.set("$LAYER_COUNT", LoaderEntry.makeEntry(m.getLayers().size()));
 				// Define Tiles
 				for (int i = 0; i < tiles.getTiles().length; i++) {

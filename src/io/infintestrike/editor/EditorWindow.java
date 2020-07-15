@@ -11,7 +11,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -82,7 +84,7 @@ public class EditorWindow {
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				if(Loader.getValueBoolean(Settings.settingsFile.valueOf("$NOTIFY_ON_EXIT", "false"))) {
+				if(Settings.isSaved == false && (Loader.getValueBoolean(Settings.settingsFile.valueOf("$NOTIFY_ON_EXIT", "false")) == true)) {
 					// check if saved flag is set
 					int i  = JOptionPane.showConfirmDialog(
 							frame, 
@@ -185,6 +187,21 @@ public class EditorWindow {
 		newMap.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				if(!Settings.lastSavedPath.equals("")) {
+					// check if saved flag is set
+					int i  = JOptionPane.showConfirmDialog(
+							frame, 
+							Settings.getLanguage().getValue("$EDITOR_NEW_NOTIFICACTION"), 
+							Settings.getLanguage().getValue("$MENU_FILE_NEW"), 
+							JOptionPane.YES_NO_CANCEL_OPTION
+					);
+					
+					if(i != JOptionPane.OK_OPTION) {
+						return;
+					}
+				}
+				
+				
 				createMap = CreateMapDialog.Spawn();
 				
 				createMap.setActionListener(new ActionListener() {
@@ -219,19 +236,44 @@ public class EditorWindow {
 		mnFile.add(newMap);
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmSave = new JMenuItem(Settings.getLanguage().getValue("$GENERIC_SAVE"));
+		JMenuItem mntmSave = new JMenuItem(Settings.getLanguage().getValue("$GENERIC_SAVE_AS"));
 		mntmSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Map m = EditorWindow.currentEditor.getMap();
-				Map.saveMap(m, new File("./maps/demo.map"));
+				save(true);
 			}
 		});
-		mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		
+		JMenuItem mntmSave_1 = new JMenuItem(Settings.getLanguage().getValue("$GENERIC_SAVE"));
+		mntmSave_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				save(false);
+			}
+		});
+		
+		
+		mntmSave_1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		mnFile.add(mntmSave_1);
+		mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		mnFile.add(mntmSave);
 		
 		JMenuItem mntmOpen = new JMenuItem(Settings.getLanguage().getValue("$GENERIC_OPEN"));
 		mntmOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				if(!Settings.lastSavedPath.equals("")) {
+					// check if saved flag is set
+					int i  = JOptionPane.showConfirmDialog(
+							frame, 
+							Settings.getLanguage().getValue("$EDITOR_NEW_NOTIFICACTION"), 
+							Settings.getLanguage().getValue("$MENU_FILE_NEW"), 
+							JOptionPane.YES_NO_CANCEL_OPTION
+					);
+					
+					if(i != JOptionPane.OK_OPTION) {
+						return;
+					}
+				}
+				
 				JFileChooser chooser = new JFileChooser(new File("."));
 				int i  = chooser.showOpenDialog(frame);
 				if(i == JFileChooser.APPROVE_OPTION) {
@@ -242,9 +284,12 @@ public class EditorWindow {
 							// TODO Auto-generated method stub
 							JFrame loaderFrame = LoaderDialog.Spawn();
 							Map m = Map.openMap(chooser.getSelectedFile());
+							Settings.lastSavedPath = chooser.getSelectedFile().getPath();
 							if(m != null) {
 								EditorWindow.currentEditor.setMap(m);
 								EditorWindow.this.c.regenerateList();
+								c.reset(list, btnAddNewLayer, btnRemove, btnShow, btnHide, btnMoveLayerUp, btnMoveLayerDown, ed.getMap());
+								c.repaintPane(panel_1);
 							}
 							Core.closeFrame(loaderFrame);
 						}
@@ -265,7 +310,7 @@ public class EditorWindow {
 				SettingsWindow.Spawn();
 			}
 		});
-		mntmPreferences.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		mntmPreferences.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		mntmPreferences.setHorizontalAlignment(SwingConstants.LEFT);
 		mnFile.add(mntmPreferences);
 
@@ -334,6 +379,24 @@ public class EditorWindow {
 		JCheckBox chckbxDrawGridLines = new JCheckBox(Settings.getLanguage().getValue("$MENU_VIEW_DRAW_GRID"));
 		mnView.add(chckbxDrawGridLines);
 		chckbxDrawGridLines.setSelected(true);
+		
+		JMenuItem mntmRenderMap = new JMenuItem(Settings.getLanguage().getValue("$MENU_VIEW_RENDER"));
+		mntmRenderMap.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
+				int i = chooser.showSaveDialog(EditorWindow.this.frame);
+				if(i == JFileChooser.APPROVE_OPTION) {
+					try {
+						ImageIO.write(ed.getMap().renderMap(), "PNG", chooser.getSelectedFile());
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						Console.Error("Error Saving Image", e1);
+					}
+				}
+			}
+		});
+		mntmRenderMap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		mnView.add(mntmRenderMap);
 		chckbxDrawGridLines.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				Settings.drawGridBox = chckbxDrawGridLines.isSelected();
@@ -378,6 +441,19 @@ public class EditorWindow {
 		mnDebug.add(mntmSpawnDebugger);
 	}
 
+	public void save(boolean alwaysShow) {
+		if(alwaysShow || Settings.lastSavedPath.equals("")) {
+			JFileChooser chooser = new JFileChooser(new File("."));
+			int choice = chooser.showSaveDialog(frame);
+			if(choice == JFileChooser.APPROVE_OPTION) {
+				Map.saveMap(EditorWindow.currentEditor.getMap(), chooser.getSelectedFile());
+				Settings.lastSavedPath = chooser.getSelectedFile().getPath();
+			}
+		}else {
+			Map.saveMap(EditorWindow.currentEditor.getMap(), new File(Settings.lastSavedPath));
+		}
+	}
+	
 	// ============================================================
 	public static class NumberOnlyKeyListener implements KeyListener, MouseListener {
 

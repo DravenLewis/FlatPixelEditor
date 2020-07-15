@@ -34,7 +34,9 @@ public class Settings {
 	public static TileMap globalTileMap = null;
 	public static boolean drawGridBox = true;
 	public static int editorDrawMode = FILL_MODE_POINT;
-
+	public static boolean isSaved = true;
+	public static String lastSavedPath = "";
+	
 	// Loader Settings Loader
 	public static final File settings = new File("./preferences.settings");
 	public static LoaderResult settingsFile = null;

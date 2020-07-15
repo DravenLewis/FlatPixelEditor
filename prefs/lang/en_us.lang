@@ -12,6 +12,7 @@ $MENU_EDIT_DRAW_MODE_POINT=Point;
 $MENU_EDIT_DRAW_MODE_FILL=Fill;
 $MENU_VIEW=View;
 $MENU_VIEW_DRAW_GRID=Draw Grid Lines;
+$MENU_VIEW_RENDER=Render Map;
 $MENU_PROJECT=Project;
 $MENU_DEBUG=Debug;
 $MENU_DEBUG_SPAWN_DEBUGGER=Open Debugger;
@@ -22,6 +23,7 @@ $EDITOR_TAB_TILE=Tiles;
 $EDITOR_TAB_LAYER=Layers;
 $EDITOR_CLOSE_NOTIFICATION=Your project contains unsaved elements, are you sure you want to close?;
 $EDITOR_CLOSE_NOTIFICATION_TITLE=Close Flat Pixel Editor?;
+$EDITOR_NEW_NOTIFICACTION=You have unsaved changes, are you sure you want to make a new map?;
 ##
 $DIALOG_CREATE_HEADER=Create New Map;
 $DIALOG_CREATE_LABEL_MAP_SIZE=Map Size;
@@ -52,6 +54,7 @@ $DIALOG_DEBUGGER_LOG_FILENOSELECT=No Log File Selected;
 ##
 $DIALOG_LAYER_RENAME=Rename Layer;
 $DIALOG_LAYER_REANME_CONFIRM=Rename Layer: '%s';
+$DIALOG_LAYER_REFRESH=Refresh;
 ##
 $DIALOG_SAVE_UNSAVED_MESSAGE=Settings have been changed, are you sure you want to cancel?;
 $DIALOG_SAVE_UNSAVED_TITLE=Changes not Saved;
@@ -66,5 +69,6 @@ $GENERIC_DISMISS=Ok;
 $GENERIC_DENY=No;
 $GENERIC_CANCEL=Cancel;
 $GENERIC_SAVE=Save;
+$GENERIC_SAVE_AS=Save As;
 $GENERIC_LOADING=Loading;
 $GENERIC_OPEN=Open;
