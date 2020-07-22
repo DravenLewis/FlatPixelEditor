@@ -1,9 +1,11 @@
+## Application Info
 $APPLICATION_TITLE=Flat Pixel Editor (English US);
 $APPLICATION_VERSION=Version %s;
-##
+## Title Bar
 $MENU_FILE=File;
 $MENU_FILE_NEW=New Map;
 $MENU_FILE_SETTINGS=Preferences;
+$MENU_FILE_SAVE_RENDER=Save Render;
 $MENU_EDIT=Edit;
 $MENU_EDIT_CLEAR=Clear map;
 $MENU_EDIT_CLEAR_CONFIRM=Are you sure you want to clear the whole map?;
@@ -16,15 +18,15 @@ $MENU_VIEW_RENDER=Render Map;
 $MENU_PROJECT=Project;
 $MENU_DEBUG=Debug;
 $MENU_DEBUG_SPAWN_DEBUGGER=Open Debugger;
-##
+## Layer Delete [Unused]
 $DIALOG_CONFIRM_MULTI_LAYER_DELETE=Are you sure you want to delete %s layers?;
-##
+## Editor 
 $EDITOR_TAB_TILE=Tiles;
 $EDITOR_TAB_LAYER=Layers;
 $EDITOR_CLOSE_NOTIFICATION=Your project contains unsaved elements, are you sure you want to close?;
 $EDITOR_CLOSE_NOTIFICATION_TITLE=Close Flat Pixel Editor?;
 $EDITOR_NEW_NOTIFICACTION=You have unsaved changes, are you sure you want to make a new map?;
-##
+## Create Dialog
 $DIALOG_CREATE_HEADER=Create New Map;
 $DIALOG_CREATE_LABEL_MAP_SIZE=Map Size;
 $DIALOG_CREATE_LABEL_TILE_SIZE=Tile Size;
@@ -38,10 +40,21 @@ $DIALOG_CREATE_ERROR_MAPSIZEY=Invalid Y Map Size;
 $DIALOG_CREATE_ERROR_TILESIZE=Invalid Tile Size;
 $DIALOG_CREATE_ERROR_TILESET=A Tile Set image is required;
 $DIALOG_CREATE_ERROR_WARNING=Be Sure to fill in the required fields;
-##
+## Layer Controls
+$BTN_NEW_LAYER=New Layer;
+$BTN_REMOVE_LAYER=Remove Layer;
+$BTN_HIDE_LAYER=Hide Layer;
+$BTN_SHOW_LAYER=Show Layer;
+$BTN_MOVE_UP=Move Layer Up;
+$BTN_MOVE_DOWN=Move Layer Down;
+$LBL_CREATE_REMOVE=Create / Remove;
+$LBL_HIDE_SHOW=Hide / Show;
+$LBL_MOVE=Move Layer Up / Down;
+$LAYER_CONTROL_HEADER=Layer Controls;
+## Color Picker
 $SETTINGS_COLOR_PICKER_TEXT=Choose;
 $SETTINGS_COLOR_PICKER_TITLE=Select a value;
-##
+## Debugger
 $DIALOG_DEBUGGER_TAB_CONSOLE=Console;
 $DIALOG_DUBUGGER_TAB_LOG=Log Viewer;
 $DIALOG_DEBUGGER_BUTTON_CONSOLE_SEND=Send;
@@ -51,14 +64,15 @@ $DIALOG_DEBUGGER_LOG_DELETE_CONFIRM=Are you sure you want to delete '%s'?;
 $DIALOG_DEBUGGER_LOG_DELETE_ERROR=Cannot Delete File: %s;
 $DIALOG_DEBUGGER_TITLE=Debugger;
 $DIALOG_DEBUGGER_LOG_FILENOSELECT=No Log File Selected;
-##
+$DIALOG_DEBUGER_MAP_PROPS=Map Properties;
+## Layer List Controls
 $DIALOG_LAYER_RENAME=Rename Layer;
 $DIALOG_LAYER_REANME_CONFIRM=Rename Layer: '%s';
 $DIALOG_LAYER_REFRESH=Refresh;
-##
+## Usaved messages
 $DIALOG_SAVE_UNSAVED_MESSAGE=Settings have been changed, are you sure you want to cancel?;
 $DIALOG_SAVE_UNSAVED_TITLE=Changes not Saved;
-##
+## Generic Items
 $GENERIC_DELETE_FAIL=Delete Failed;
 $GENERIC_DELETE_SUCCESS=File Deleted Successfully!;
 $GENERIC_SUCCESS=Success;

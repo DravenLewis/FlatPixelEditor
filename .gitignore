@@ -5,3 +5,4 @@ bin/
 maps/
 .classpath
 .project
+.externalToolBuilders

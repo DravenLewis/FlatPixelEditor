@@ -1,0 +1,8 @@
+{
+    "output_dir" : "./gen/",
+    "package" : "io.infinitestrike.gen",
+    "input_files": [
+        "./prefs/lang/en_us.lang"
+    ],
+    "source_file_name" : "S"
+}

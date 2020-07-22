@@ -1,0 +1,471 @@
+package io.infinitestrike.flatpixel.dialog;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Stack;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.LayoutStyle.ComponentPlacement;
+
+import io.infinitestrike.flatpixel.MapEditor;
+import io.infinitestrike.flatpixel.Settings;
+import io.infinitestrike.flatpixel.compat.Loader;
+import io.infinitestrike.flatpixel.components.OutputConsole;
+import io.infinitestrike.flatpixel.core.Core;
+import io.infinitestrike.flatpixel.core.ResourceManager;
+import io.infinitestrike.flatpixel.core.Vector.Vector2i;
+import io.infinitestrike.flatpixel.logging.Console;
+import io.infinitestrike.utils.TextFromFile;
+
+public class Debugger extends JPanel {
+
+	/**
+	 * Create the panel.
+	 */
+
+	String[] fileNames = this.getLogFiles();
+	private JTextField textField;
+	private JFrame parent = null;
+	private Stack<String> commandHistory = new Stack<String>();
+
+	private static JFrame openFrame = null;
+	protected static JTextField textField_1;
+	protected static JTextField textField_2;
+	protected static JTextField textField_3;
+	protected static JTextField textField_4;
+	protected static JTextField textField_5;
+	protected static JTextField textField_6;
+	protected static JTextField textField_7;
+
+	public Debugger() {
+		setLayout(new BorderLayout(0, 0));
+
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		add(tabbedPane);
+
+		JPanel panel_2 = new JPanel();
+		tabbedPane.addTab(Settings.getLanguage().getValue("$DIALOG_DEBUGGER_TAB_CONSOLE"), null, panel_2, null);
+		panel_2.setLayout(new BorderLayout(0, 0));
+
+		JPanel scrollPane = new JPanel();
+		panel_2.add(scrollPane);
+		scrollPane.setLayout(new BorderLayout());
+		OutputConsole.getConsole().attach(scrollPane, BorderLayout.CENTER);
+
+		JPanel panel_3 = new JPanel();
+		panel_2.add(panel_3, BorderLayout.SOUTH);
+		panel_3.setLayout(new BorderLayout(0, 0));
+
+		textField = new JTextField();
+		textField.addKeyListener(new KeyAdapter() {
+
+			int index = commandHistory.size();
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					index = commandHistory.size();
+					processCommand();
+				}
+
+				if (e.getKeyCode() == KeyEvent.VK_UP) {
+					if (index != 0) {
+						textField.setText(commandHistory.get(index - 1));
+						index--;
+						if (index < 0)
+							index = 0;
+					}
+				}
+
+				if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+					if (index == commandHistory.size()) {
+						textField.setText("");
+					} else {
+						textField.setText(commandHistory.get(index));
+						index++;
+						if (index > commandHistory.size()) {
+							index = commandHistory.size() - 1;
+						}
+					}
+				}
+
+			}
+		});
+		panel_3.add(textField, BorderLayout.CENTER);
+		textField.setColumns(10);
+
+		JButton btnNewButton = new JButton(Settings.getLanguage().getValue("$DIALOG_DEBUGGER_BUTTON_CONSOLE_SEND"));
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				processCommand();
+			}
+		});
+		panel_3.add(btnNewButton, BorderLayout.EAST);
+
+		JPanel panel = new JPanel();
+		tabbedPane.addTab(Settings.getLanguage().getValue("$DIALOG_DUBUGGER_TAB_LOG"), null, panel, null);
+		panel.setLayout(new BorderLayout(0, 0));
+
+		JPanel panel_1 = new JPanel();
+		panel.add(panel_1, BorderLayout.NORTH);
+		panel_1.setLayout(new BorderLayout(0, 0));
+
+		JScrollPane scrollPane_1 = new JScrollPane();
+		panel.add(scrollPane_1, BorderLayout.CENTER);
+		JTextArea textArea_1 = new JTextArea();
+		textArea_1.setEditable(false);
+		textArea_1.setBackground(
+				new Color(Loader.getValueHex(Settings.getSettings().valueOf("$CONSOLE_COLOR_BACKGROUND", "3e3e3e"))));
+		textArea_1.setForeground(
+				new Color(Loader.getValueHex(Settings.getSettings().valueOf("$CONSOLE_COLOR_FOREGROUND", "888888"))));
+		scrollPane_1.setViewportView(textArea_1);
+
+		JComboBox<String> comboBox = new JComboBox<String>();
+		comboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String filePath = Console.logDirectory.getPath() + "/" + fileNames[comboBox.getSelectedIndex()];
+				if (comboBox.getSelectedIndex() > 0) {
+					textArea_1.setText("");
+					String prePend = "// Generated By Debugger, Log File. \n";
+					prePend += "File: " + filePath + "; file-size: " + Core.getFileSize(new File(filePath)) + "\n";
+					prePend += "===============================================\n\n";
+					try {
+						textArea_1.setText(prePend + TextFromFile.getText(new File(filePath)));
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						Console.Error("Cannot Load File", e1);
+					}
+				}
+			}
+		});
+		comboBox.setModel(new DefaultComboBoxModel(this.fileNames));
+		panel_1.add(comboBox, BorderLayout.CENTER);
+
+		JLabel lblLogFile = new JLabel(Settings.getLanguage().getValue("$DIALOG_DEBUGGER_LABEL_LOGFILE"));
+		panel_1.add(lblLogFile, BorderLayout.WEST);
+
+		JButton btnDelete = new JButton(Settings.getLanguage().getValue("$DIALOG_DEBUGGER_BUTTON_LOG_DELETE"));
+		btnDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String filePath = Console.logDirectory.getPath() + "/" + fileNames[comboBox.getSelectedIndex()];
+				if (comboBox.getSelectedIndex() > 0) {
+					int option = JOptionPane.showConfirmDialog(Debugger.this,
+							// "Are you sure you want to delete " + fileNames[comboBox.getSelectedIndex()] +
+							// "?",
+							String.format(Settings.getLanguage().getValue("$DIALOG_DEBUGGER_LOG_DELETE_CONFIRM"),
+									fileNames[comboBox.getSelectedIndex()]),
+							Settings.getLanguage().getValue("$GENERIC_DELETE_FILE"), JOptionPane.YES_NO_OPTION);
+
+					if (option == JOptionPane.OK_OPTION) {
+						try {
+							Files.delete(Paths.get(filePath));
+							JOptionPane.showMessageDialog(Debugger.this,
+									Settings.getLanguage().getValue("$GENERIC_DELETE_SUCCESS"),
+									Settings.getLanguage().getValue("$GENERIC_SUCCESS"),
+									JOptionPane.INFORMATION_MESSAGE);
+							fileNames = getLogFiles();
+							comboBox.setModel(new DefaultComboBoxModel<String>(fileNames));
+
+							textArea_1.setText(Settings.getLanguage().getValue("$DIALOG_DEBUGGER_LOG_FILENOSELECT"));
+						} catch (Exception ef) {
+							Console.Error("Cannot Delete File", ef);
+							JOptionPane.showMessageDialog(Debugger.this,
+									String.format(Settings.getLanguage().getValue("$DIALOG_DEBUGGER_LOG_DELETE_ERROR"),
+											ef.getMessage()),
+									Settings.getLanguage().getValue("$GENERIC_DELETE_FAIL"), JOptionPane.ERROR_MESSAGE);
+						}
+					}
+
+				}
+			}
+		});
+		panel_1.add(btnDelete, BorderLayout.EAST);
+
+		JPanel panel_4 = new JPanel();
+		tabbedPane.addTab(Settings.getLanguage().getValue("$DIALOG_DEBUGER_MAP_PROPS"), null, panel_4, null);
+
+		JLabel lblMapProperties = new JLabel("Map Properties");
+		lblMapProperties.setFont(new Font("Tahoma", Font.PLAIN, 18));
+
+		JSeparator separator = new JSeparator();
+
+		JLabel lblTileSize = new JLabel("Tile Size:");
+
+		textField_1 = new JTextField();
+		textField_1.setEditable(false);
+		textField_1.setEnabled(false);
+		textField_1.setColumns(10);
+
+		JLabel lblMapCellsWidth = new JLabel("Map Cells Width:");
+
+		textField_2 = new JTextField();
+		textField_2.setEnabled(false);
+		textField_2.setEditable(false);
+		textField_2.setColumns(10);
+
+		JLabel lblMapCellsHeight = new JLabel("Map Cells Height:");
+
+		textField_3 = new JTextField();
+		textField_3.setEnabled(false);
+		textField_3.setEditable(false);
+		textField_3.setColumns(10);
+
+		JLabel lblTilesetImage = new JLabel("Tileset Image:");
+
+		textField_4 = new JTextField();
+		textField_4.setEnabled(false);
+		textField_4.setEditable(false);
+		textField_4.setColumns(10);
+
+		JLabel lblTileMapInstance = new JLabel("Tile Map Instance:");
+
+		textField_5 = new JTextField();
+		textField_5.setEditable(false);
+		textField_5.setEnabled(false);
+		textField_5.setColumns(10);
+
+		JLabel lblCurrentlySelectedTile = new JLabel("Currently Selected Tile:");
+
+		textField_6 = new JTextField();
+		textField_6.setEnabled(false);
+		textField_6.setEditable(false);
+		textField_6.setColumns(10);
+
+		JLabel lblLastSavedPath = new JLabel("Last Saved Path:");
+
+		textField_7 = new JTextField();
+		textField_7.setEnabled(false);
+		textField_7.setEditable(false);
+		textField_7.setColumns(10);
+		GroupLayout gl_panel_4 = new GroupLayout(panel_4);
+		gl_panel_4.setHorizontalGroup(gl_panel_4.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel_4.createSequentialGroup().addContainerGap()
+						.addGroup(gl_panel_4.createParallelGroup(Alignment.LEADING)
+								.addComponent(separator, GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+								.addComponent(lblMapProperties)
+								.addGroup(gl_panel_4.createSequentialGroup().addGroup(gl_panel_4
+										.createParallelGroup(Alignment.LEADING).addComponent(lblCurrentlySelectedTile)
+										.addComponent(lblTileMapInstance).addComponent(lblTilesetImage)
+										.addComponent(lblMapCellsHeight).addComponent(lblMapCellsWidth)
+										.addComponent(lblTileSize).addComponent(lblLastSavedPath))
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addGroup(gl_panel_4.createParallelGroup(Alignment.LEADING)
+												.addComponent(textField_7, GroupLayout.DEFAULT_SIZE, 306,
+														Short.MAX_VALUE)
+												.addComponent(textField_4, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
+														296, Short.MAX_VALUE)
+												.addComponent(textField_6, GroupLayout.DEFAULT_SIZE, 296,
+														Short.MAX_VALUE)
+												.addComponent(textField_3, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
+														296, Short.MAX_VALUE)
+												.addComponent(textField_2, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
+														296, Short.MAX_VALUE)
+												.addComponent(textField_1, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
+														296, Short.MAX_VALUE)
+												.addComponent(textField_5, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
+														296, Short.MAX_VALUE))))
+						.addContainerGap()));
+		gl_panel_4.setVerticalGroup(gl_panel_4.createParallelGroup(Alignment.LEADING).addGroup(gl_panel_4
+				.createSequentialGroup().addContainerGap().addComponent(lblMapProperties)
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addComponent(separator, GroupLayout.PREFERRED_SIZE, 2, GroupLayout.PREFERRED_SIZE).addGap(18)
+				.addGroup(gl_panel_4.createParallelGroup(Alignment.BASELINE).addComponent(lblTileSize).addComponent(
+						textField_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.UNRELATED)
+				.addGroup(gl_panel_4.createParallelGroup(Alignment.BASELINE).addComponent(lblMapCellsWidth)
+						.addComponent(textField_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.UNRELATED)
+				.addGroup(gl_panel_4.createParallelGroup(Alignment.BASELINE).addComponent(lblMapCellsHeight)
+						.addComponent(textField_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.UNRELATED)
+				.addGroup(gl_panel_4.createParallelGroup(Alignment.BASELINE).addComponent(lblTilesetImage).addComponent(
+						textField_4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+				.addGap(11)
+				.addGroup(gl_panel_4.createParallelGroup(Alignment.TRAILING)
+						.addGroup(gl_panel_4.createSequentialGroup().addComponent(lblTileMapInstance).addGap(8))
+						.addGroup(gl_panel_4.createSequentialGroup()
+								.addComponent(textField_5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.UNRELATED)))
+				.addGroup(gl_panel_4.createParallelGroup(Alignment.TRAILING).addComponent(lblCurrentlySelectedTile)
+						.addComponent(textField_6, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+				.addGroup(gl_panel_4.createParallelGroup(Alignment.BASELINE).addComponent(lblLastSavedPath)
+						.addComponent(textField_7, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addContainerGap()));
+		panel_4.setLayout(gl_panel_4);
+
+		Thread t = new Thread(new Debugger.ValueUpdateThread());
+		t.start();
+	}
+
+	public void processCommand() {
+		String[] command = textField.getText().split(" ");
+		this.commandHistory.push(textField.getText().toLowerCase());
+		String com = command[0];
+		String[] args = new String[command.length - 1];
+		System.arraycopy(command, 1, args, 0, args.length);
+
+		try {
+			CommandProcessor.runCommand(com, args);
+		} catch (Exception e) {
+			Console.Error("Error With Command: ", e);
+		}
+		textField.setText("");
+	}
+
+	public static void Spawn() {
+		if (openFrame != null) {
+			openFrame.requestFocus();
+			return;
+		}
+		Debugger d = new Debugger();
+		JFrame frame = Core.spawnFrame(d, Settings.getLanguage().getValue("$DIALOG_DEBUGGER_TITLE"),
+				new Vector2i(640, 400), null, true, false);
+		frame.setIconImage(ResourceManager.DEBUGGER_ICON);
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				openFrame = null;
+				Console.Save();
+			}
+		});
+		frame.setVisible(true);
+		openFrame = frame;
+	}
+
+	public String[] getLogFiles() {
+		File logDir = Console.logDirectory;
+		ArrayList<String> fileNames = new ArrayList<String>();
+		if (logDir.isDirectory()) {
+			File[] files = logDir.listFiles();
+			fileNames.add(Settings.getLanguage().getValue("$DIALOG_DEBUGGER_LOG_FILENOSELECT"));
+			for (int i = 1; i < files.length; i++) {
+				String name = files[i - 1].getName();
+				if (name.equals(Console.getCurrentFileName()))
+					continue;
+				fileNames.add(name);
+			}
+		}
+
+		String[] names = new String[fileNames.size()];
+		for (int i = 0; i < fileNames.size(); i++)
+			names[i] = fileNames.get(i);
+
+		return names;
+	}
+
+	public void setParent(JFrame f) {
+		this.parent = f;
+	}
+
+	public static class CommandProcessor {
+		public static void runCommand(String command, String... args) throws Exception {
+			if (command == "" || command.isEmpty())
+				return;
+			Console.Log("User Typed Command: " + command);
+			int argLength = args.length;
+			switch (command.toLowerCase()) {
+			case "/print":
+				String message = "";
+				for (String s : args)
+					message += s + " ";
+				Console.Log(message);
+				break;
+			case "/input":
+				Console.Log("Current Input of the Main Editor: \n\n\n");
+				String iman = MapEditor.getApplicationWindow().getMainEditorViewPane().getInputManager().toString();
+				Console.Log(iman);
+				break;
+			case "/clear":
+				OutputConsole.getConsole().clear();
+				break;
+			case "/gettileid":
+				int x = Integer.parseInt(args[0]);
+				int y = Integer.parseInt(args[1]);
+				int index = Settings.getMapSettings().tileMap.getTile(x, y).id;
+				Console.Log("Tile at Location [" + x + "," + y + "] is: " + index);
+				break;
+			case "/dumpsettings":
+				Console.Log(Loader.LoaderResultToString(Settings.getSettings()));
+				break;
+			case "/mapinfo":
+				Console.Log(MapEditor.getApplicationWindow().getMainEditorViewRenderCall().getMap());
+				break;
+			default:
+				Console.Log("Unknown Command: '" + command + "'. Commands all start with '/'");
+				break;
+			}
+		}
+	}
+
+	private static class ValueUpdateThread implements Runnable {
+
+		private boolean running = true;
+
+		private JTextField [] textFields = new JTextField[7];
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
+			textFields[0] = textField_1;
+			textFields[1] = textField_2;
+			textFields[2] = textField_3;
+			textFields[3] = textField_4;
+			textFields[4] = textField_5;
+			textFields[5] = textField_6;
+			textFields[6] = textField_7;
+			
+			while (running) {
+				if(textFields[0].getText() != ""+Settings.getMapSettings().tileSize)
+					textFields[0].setText(""+Settings.getMapSettings().tileSize);
+				if(textFields[1].getText() != ""+Settings.getMapSettings().tileCellsW)
+					textFields[1].setText(""+Settings.getMapSettings().tileCellsW);
+				if(textFields[2].getText() != ""+Settings.getMapSettings().tileCellsH)
+					textFields[2].setText(""+Settings.getMapSettings().tileCellsH);
+				if(textFields[3].getText() != ""+Settings.getMapSettings().tileSetImage)
+					textFields[3].setText(""+Settings.getMapSettings().tileSetImage);
+				if(textFields[4].getText() != ""+Settings.getMapSettings().tileMap)
+					textFields[4].setText(""+Settings.getMapSettings().tileMap);
+				if(textFields[5].getText() != ""+Settings.getMapSettings().currentlySelectedTile)
+					textFields[5].setText(""+Settings.getMapSettings().currentlySelectedTile);
+				if(textFields[6].getText() != ""+Settings.getMapSettings().lastSavedMapLocation)
+					textFields[6].setText(""+Settings.getMapSettings().lastSavedMapLocation);
+				//========================================================================
+			}
+		}
+
+		public void stop() {
+			this.running = false;
+		}
+	}
+}
